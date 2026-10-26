@@ -1,0 +1,7 @@
+"use client"
+import { Receipt } from "lucide-react"
+import { PageHeader } from "@/components/shared/page-header"
+import { StatusBadge } from "@/components/shared/status-badge"
+import { useHotel } from "@/services/store"
+import { invoiceTotals } from "@/lib/calculations"
+export function BillingView(){const data=useHotel();return <main className="space-y-6"><PageHeader title="Billing" description="Invoices, balances, and payment status."/><div className="overflow-hidden rounded-xl border bg-card"><table className="w-full text-left text-sm"><thead className="border-b bg-muted/40 text-xs uppercase tracking-wide text-muted-foreground"><tr><th className="px-5 py-3">Invoice</th><th className="px-5 py-3">Guest</th><th className="px-5 py-3">Total</th><th className="px-5 py-3">Balance</th><th className="px-5 py-3">Status</th></tr></thead><tbody className="divide-y">{data.invoices.map(inv=>{const t=invoiceTotals(inv);const guest=data.guests.find(g=>g.id===inv.guestId);const status=inv.voided?"void":t.balance<=0?"paid":t.paid>0?"partial":inv.finalized?"unpaid":"draft";return <tr key={inv.id} className="hover:bg-muted/30"><td className="px-5 py-4"><div className="flex items-center gap-2 font-medium"><Receipt className="size-4 text-primary"/>{inv.number}</div></td><td className="px-5 py-4">{guest?.name}</td><td className="px-5 py-4">₹{t.total.toLocaleString("en-IN")}</td><td className="px-5 py-4">₹{t.balance.toLocaleString("en-IN")}</td><td className="px-5 py-4"><StatusBadge status={status}/></td></tr>})}</tbody></table></div></main>}

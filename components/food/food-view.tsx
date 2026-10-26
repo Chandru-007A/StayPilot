@@ -1,0 +1,7 @@
+"use client"
+import { UtensilsCrossed } from "lucide-react"
+import { PageHeader } from "@/components/shared/page-header"
+import { StatusBadge } from "@/components/shared/status-badge"
+import { useHotel } from "@/services/store"
+import { updateFoodOrder } from "@/services/food-service"
+export function FoodView(){const data=useHotel();return <main className="space-y-6"><PageHeader title="Room service" description="Track orders from kitchen to guest room."/><div className="grid gap-4 md:grid-cols-2">{data.orders.map(order=>{const room=data.rooms.find(r=>r.id===order.roomId);const next: "preparing" | "ready" | "delivered" | undefined = order.status === "new" ? "preparing" : order.status === "preparing" ? "ready" : order.status === "ready" ? "delivered" : undefined;return <article key={order.id} className="rounded-xl border bg-card p-5"><div className="flex items-start justify-between"><div><div className="flex items-center gap-2 font-semibold"><UtensilsCrossed className="size-4 text-primary"/>{order.number} · Room {room?.number}</div><div className="mt-2 text-sm text-muted-foreground">{order.items.map(i=>`${i.quantity}× ${i.name}`).join(", ")}</div></div><StatusBadge status={order.status}/></div>{order.notes&&<p className="mt-3 text-xs text-muted-foreground">{order.notes}</p>}{next&&<button onClick={()=>updateFoodOrder(order.id,next)} className="mt-4 rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground">Move to {next}</button>}</article>})}</div></main>}

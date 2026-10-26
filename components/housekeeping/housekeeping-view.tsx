@@ -1,0 +1,14 @@
+"use client"
+
+import { useMemo } from "react"
+import { CheckCircle2, Clock3, SprayCan } from "lucide-react"
+import { PageHeader } from "@/components/shared/page-header"
+import { StatusBadge } from "@/components/shared/status-badge"
+import { useHotel } from "@/services/store"
+import { updateTask } from "@/services/rooms-service"
+
+export function HousekeepingView() {
+  const data = useHotel(); const rooms = new Map(data.rooms.map((r) => [r.id, r.number])); const staff = new Map(data.staff.map((s) => [s.id, s.name]))
+  const tasks = useMemo(() => [...data.tasks].sort((a, b) => Number(a.status === "completed") - Number(b.status === "completed") || a.dueAt.localeCompare(b.dueAt)), [data.tasks])
+  return <main className="space-y-6"><PageHeader title="Housekeeping" description="Cleaning schedules and maintenance tasks." /><div className="grid gap-4 sm:grid-cols-3"><div className="rounded-xl border bg-card p-4"><div className="text-sm text-muted-foreground">Open tasks</div><div className="mt-1 text-2xl font-semibold">{tasks.filter((t) => t.status === "pending" || t.status === "in_progress").length}</div></div><div className="rounded-xl border bg-card p-4"><div className="text-sm text-muted-foreground">In progress</div><div className="mt-1 text-2xl font-semibold">{tasks.filter((t) => t.status === "in_progress").length}</div></div><div className="rounded-xl border bg-card p-4"><div className="text-sm text-muted-foreground">Completed</div><div className="mt-1 text-2xl font-semibold">{tasks.filter((t) => t.status === "completed").length}</div></div></div><div className="overflow-hidden rounded-xl border bg-card"><div className="divide-y">{tasks.map((task) => <div key={task.id} className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between"><div className="flex items-start gap-3"><span className="mt-0.5 rounded-lg bg-primary/10 p-2 text-primary">{task.category === "housekeeping" ? <SprayCan className="size-4" /> : <Clock3 className="size-4" />}</span><div><div className="font-medium">{task.type} · Room {rooms.get(task.roomId)}</div><div className="mt-1 text-sm text-muted-foreground">{staff.get(task.staffId ?? "") || "Unassigned"} · Due {new Date(task.dueAt).toLocaleString()}</div>{task.notes && <div className="mt-1 text-xs text-muted-foreground">{task.notes}</div>}</div></div><div className="flex items-center gap-3"><StatusBadge status={task.priority} /><StatusBadge status={task.status} />{task.status !== "completed" && <button onClick={() => updateTask(task.id, { status: task.status === "pending" ? "in_progress" : "completed" })} className="inline-flex items-center gap-1 rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:bg-primary/90">{task.status === "pending" ? "Start" : <><CheckCircle2 className="size-3.5" /> Complete</>}</button>}</div></div>)}</div></div></main>
+}

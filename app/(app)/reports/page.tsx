@@ -1,0 +1,5 @@
+"use client"
+import { BarChart3 } from "lucide-react"
+import { PageHeader } from "@/components/shared/page-header"
+import { useHotel } from "@/services/store"
+export default function ReportsPage(){const d=useHotel();const revenue=d.invoices.reduce((s,i)=>s+i.payments.reduce((p,x)=>p+x.amount,0),0);return <main className="space-y-6"><PageHeader title="Reports" description="Operational performance at a glance."/><div className="grid gap-4 md:grid-cols-3">{[["Collected revenue",`₹${revenue.toLocaleString("en-IN")}`],["Bookings",d.bookings.length],["Average rating",(d.reviews.reduce((s,r)=>s+r.rating,0)/Math.max(1,d.reviews.length)).toFixed(1)]] .map(([l,v])=><div key={String(l)} className="rounded-xl border bg-card p-5"><div className="text-sm text-muted-foreground">{l}</div><div className="mt-2 text-2xl font-semibold">{v}</div></div>)}</div><div className="rounded-xl border bg-card p-8 text-center"><BarChart3 className="mx-auto size-10 text-primary"/><h2 className="mt-3 font-semibold">Report exports</h2><p className="mt-1 text-sm text-muted-foreground">Use the table filters across the workspace to prepare operational exports.</p></div></main>}
